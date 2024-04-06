@@ -1,34 +1,24 @@
 import Head from "next/head";
 import axios from "axios";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsSearch } from "react-icons/bs";
 import Weather from "@/components/Weather";
-import Spinner from "@/components/Spinner";
+import Image from "next/image";
 
-export default function Home() {
-  const [city, setCity] = useState("Bengaluru");
-  const [weather, SetWeather] = useState({});
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    fetchWeather;
-  }, [city]);
+export default function Home({ weatherData }) {
+  const [city, setCity] = useState("Edmond");
+  const [weather, setWeather] = useState(weatherData);
 
   const fetchWeather = async (e) => {
     e.preventDefault();
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}`;
-    // setLoading(true);
     try {
-      const response = await new Promise((resolve, reject) => {
-        axios.get(url).then(resolve).catch(reject);
-      });
-      console.log(response.data);
-      SetWeather(response.data);
+      const response = await axios.get(url);
+      setWeather(response.data);
     } catch (err) {
-      alert(err);
+      console.error(err);
     }
     setCity("");
-    setLoading(false);
   };
 
   return (
@@ -46,7 +36,6 @@ export default function Home() {
         alt="bg"
         className="object-cover "
       />
-
       <div className="pt-5 relative flex justify-between items-center max-w-[500px] w-full m-auto text-white z-10">
         <form
           onSubmit={(e) => fetchWeather(e)}
@@ -60,13 +49,33 @@ export default function Home() {
             />
           </div>
           <button type="submit">
-            {/* Ensure type attribute is set to "submit" */}
             <BsSearch size={20} />
           </button>
         </form>
       </div>
-      {loading && <Spinner />}
-      {weather.main && <Weather data={weather} />}
+      {weather && <Weather data={weather} />}
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const defaultCity = "Edmond";
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${defaultCity}&units=imperial&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}`;
+
+  try {
+    const response = await axios.get(url);
+    const weatherData = response.data;
+    return {
+      props: {
+        weatherData,
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      props: {
+        weatherData: null,
+      },
+    };
+  }
 }
