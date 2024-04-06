@@ -10,6 +10,9 @@ export default function Home() {
   const [city, setCity] = useState("Bengaluru");
   const [weather, SetWeather] = useState({});
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    fetchWeather;
+  }, [city]);
 
   const fetchWeather = async (e) => {
     e.preventDefault();
