@@ -17,6 +17,7 @@ export default function Home({ weatherData }) {
       setWeather(response.data);
     } catch (err) {
       console.error(err);
+      alert(err);
     }
     setCity("");
   };
